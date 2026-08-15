@@ -1,0 +1,233 @@
+{% extends "core/base.html" %}
+{% load core_extras %}
+{% block public_content %}
+<style>
+  body { background: #080c14; }
+  .hero {
+    min-height: 100vh;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(99,102,241,0.15) 0%, transparent 50%),
+                #080c14;
+    display: flex; flex-direction: column;
+  }
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 60px;
+    border-bottom: 1px solid #1e2d45;
+    position: sticky; top: 0; background: rgba(8,12,20,0.85);
+    backdrop-filter: blur(12px); z-index: 100;
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg,#3b82f6,#6366f1); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .nav-links { display: flex; align-items: center; gap: 24px; }
+  .nav-links a { color: #94a3b8; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: #e2e8f0; }
+  .btn-nav {
+    background: linear-gradient(135deg,#3b82f6,#6366f1);
+    color: #fff; padding: 10px 22px; border-radius: 10px;
+    font-weight: 600; font-size: 14px; transition: opacity 0.2s;
+  }
+  .btn-nav:hover { opacity: 0.9; }
+
+  .hero-body {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 80px 20px 60px;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 30px; padding: 6px 18px; font-size: 13px; color: #60a5fa;
+    margin-bottom: 28px;
+  }
+  h1.hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(38px, 6vw, 72px);
+    font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, #fff 40%, #60a5fa 80%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 20px;
+  }
+  .hero-sub {
+    font-size: 18px; color: #94a3b8; max-width: 560px;
+    line-height: 1.6; margin-bottom: 40px;
+  }
+  .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .btn-hero-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg,#3b82f6,#6366f1);
+    color: #fff; padding: 14px 30px; border-radius: 12px;
+    font-size: 16px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(59,130,246,0.4); }
+  .btn-hero-outline {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: #e2e8f0;
+    border: 1px solid #1e2d45; padding: 14px 30px; border-radius: 12px;
+    font-size: 16px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-hero-outline:hover { border-color: #3b82f6; color: #60a5fa; }
+
+  .stats-band {
+    display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+    padding: 32px 40px;
+    border-top: 1px solid #1e2d45;
+    background: rgba(13,18,32,0.8);
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; color: #3b82f6; }
+  .stat-lbl { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+  .features {
+    padding: 80px 40px;
+    background: #0d1220;
+    border-top: 1px solid #1e2d45;
+  }
+  .features-title { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; text-align: center; margin-bottom: 12px; }
+  .features-sub { text-align: center; color: #94a3b8; margin-bottom: 48px; font-size: 16px; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+  .feature-card {
+    background: #111827; border: 1px solid #1e2d45;
+    border-radius: 16px; padding: 28px;
+    transition: all 0.25s;
+  }
+  .feature-card:hover { border-color: #3b82f6; transform: translateY(-4px); }
+  .feature-icon {
+    width: 50px; height: 50px;
+    background: linear-gradient(135deg,rgba(59,130,246,0.2),rgba(99,102,241,0.2));
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+  }
+  .feature-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .feature-desc { color: #94a3b8; font-size: 14px; line-height: 1.6; }
+
+  .jobs-preview {
+    padding: 60px 40px; max-width: 1100px; margin: 0 auto;
+  }
+  .jobs-preview-title { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; margin-bottom: 6px; }
+
+  .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 24px; }
+
+  footer {
+    background: #080c14; border-top: 1px solid #1e2d45;
+    padding: 30px 60px; text-align: center;
+    color: #475569; font-size: 13px;
+  }
+</style>
+
+<div class="hero">
+  <nav>
+    <div class="nav-logo">
+      <div class="nav-logo-icon">🧠</div> TalentAI
+    </div>
+    <div class="nav-links">
+      <a href="{% url 'job_list' %}">Browse Jobs</a>
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}" class="btn-nav">Get Started</a>
+    </div>
+  </nav>
+
+  <div class="hero-body">
+    <div class="hero-badge"><i class="fas fa-robot"></i> Powered by NLP &amp; Machine Learning</div>
+    <h1 class="hero-title">Hire Smarter.<br>Get Hired Faster.</h1>
+    <p class="hero-sub">
+      AI-powered resume screening and intelligent job matching — connecting the right talent
+      with the right opportunities at lightning speed.
+    </p>
+    <div class="hero-cta">
+      <a href="{% url 'register' %}" class="btn-hero-primary"><i class="fas fa-rocket"></i> Start for Free</a>
+      <a href="{% url 'job_list' %}" class="btn-hero-outline"><i class="fas fa-search"></i> Browse {{ stats.jobs }} Jobs</a>
+    </div>
+  </div>
+
+  <div class="stats-band">
+    <div class="stat-item"><div class="stat-num">{{ stats.jobs }}</div><div class="stat-lbl">Active Jobs</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.companies }}</div><div class="stat-lbl">Companies</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.users }}</div><div class="stat-lbl">Job Seekers</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.applications }}</div><div class="stat-lbl">Applications</div></div>
+  </div>
+</div>
+
+<section class="features">
+  <div class="features-title">Built for Modern Hiring</div>
+  <div class="features-sub">Everything you need — from posting to placement</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">AI Resume Screening</div>
+      <div class="feature-desc">TF-IDF + cosine similarity ranks candidates automatically. Every resume gets an AI match score with detailed feedback.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Smart Recommendations</div>
+      <div class="feature-desc">NLP engine analyses your skills, experience, and education to surface the most relevant job opportunities.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Instant Skill Matching</div>
+      <div class="feature-desc">400+ skills across 9 categories — programming, DevOps, ML, and more — matched with precision.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Recruiter Analytics</div>
+      <div class="feature-desc">Detailed dashboards for companies. Track applications, scores, conversion rates, and hiring pipeline.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-title">Three-Role Auth</div>
+      <div class="feature-desc">Separate portals for admins, recruiters, and job seekers — each with tailored dashboards and permissions.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📄</div>
+      <div class="feature-title">PDF/DOCX Parsing</div>
+      <div class="feature-desc">Upload your resume in any format. Our parser extracts text, skills, and experience automatically.</div>
+    </div>
+  </div>
+</section>
+
+{% if featured_jobs %}
+<section class="jobs-preview">
+  <div class="section-header">
+    <div>
+      <div class="jobs-preview-title">Featured Opportunities</div>
+      <div style="color:#64748b;font-size:14px;margin-top:4px;">Handpicked active positions</div>
+    </div>
+    <a href="{% url 'job_list' %}" class="btn-hero-outline" style="padding:10px 20px;font-size:14px;">View All</a>
+  </div>
+  <div class="jobs-grid">
+    {% for job in featured_jobs %}
+    <a href="{% url 'job_detail' job.pk %}" style="display:block;">
+      <div class="job-card">
+        <div class="job-card-title">{{ job.title }}</div>
+        <div class="job-card-company">
+          <i class="fas fa-building" style="margin-right:5px;color:#3b82f6;"></i>
+          {{ job.company.company_profile.company_name|default:job.company.username }}
+        </div>
+        <div class="job-card-meta">
+          <span class="job-meta-item"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+          <span class="job-meta-item"><i class="fas fa-briefcase"></i> {{ job.get_job_type_display }}</span>
+        </div>
+        {% if job.skills_text %}
+        <div>
+          {% for skill in job.skills_text|split:","|slice:":3" %}
+          <span class="skill-tag">{{ skill|title }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="job-card-footer">
+          <span style="font-size:13px;color:#64748b;">{{ job.created_at|timesince }} ago</span>
+          <span class="badge badge-green">{{ job.get_experience_level_display }}</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<footer>
+  &copy; 2024 TalentAI. Built with Django &amp; NLP. All rights reserved.
+</footer>
+{% endblock %}

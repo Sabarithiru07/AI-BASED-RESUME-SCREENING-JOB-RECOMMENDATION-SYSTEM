@@ -1,0 +1,76 @@
+{% extends "core/base.html" %}
+{% block page_title %}All Applications{% endblock %}
+{% block content %}
+<!-- Filters -->
+<div class="card" style="margin-bottom:20px;">
+  <form method="get" style="display:grid;grid-template-columns:2fr 1fr auto;gap:12px;align-items:end;">
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">Filter by Job</label>
+      <select name="job" class="form-control">
+        <option value="">All Jobs</option>
+        {% for job in jobs %}
+        <option value="{{ job.pk }}" {% if selected_job == job.pk|stringformat:'s' %}selected{% endif %}>{{ job.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">Status</label>
+      <select name="status" class="form-control">
+        <option value="">All Statuses</option>
+        {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if selected_status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary" style="height:44px;"><i class="fas fa-filter"></i> Filter</button>
+  </form>
+</div>
+
+<div class="section-header">
+  <div class="section-title">{{ applications.count }} Applications</div>
+</div>
+
+{% if applications %}
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Candidate</th><th>Job</th><th>AI Score</th><th>Status</th><th>Applied</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for app in applications %}
+        <tr>
+          <td>
+            <div style="font-weight:600;">{{ app.applicant.get_full_name|default:app.applicant.username }}</div>
+            <div style="font-size:12px;color:var(--text3);">{{ app.applicant.email }}</div>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:13px;">{{ app.job.title }}</div>
+            <div style="font-size:11px;color:var(--text3);">{{ app.job.get_job_type_display }}</div>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="score-ring score-{% if app.ai_score >= 75 %}excellent{% elif app.ai_score >= 50 %}good{% elif app.ai_score >= 25 %}fair{% else %}poor{% endif %}" style="width:40px;height:40px;font-size:11px;">
+                {{ app.ai_score|floatformat:0 }}%
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge {% if app.status == 'shortlisted' %}badge-green{% elif app.status == 'rejected' %}badge-red{% elif app.status == 'interview' %}badge-blue{% elif app.status == 'offered' %}badge-purple{% else %}badge-gray{% endif %}">
+              {{ app.get_status_display }}
+            </span>
+          </td>
+          <td style="font-size:13px;color:var(--text3);">{{ app.applied_at|date:"M d, Y" }}</td>
+          <td><a href="{% url 'application_detail' app.pk %}" class="btn btn-outline btn-xs">Review</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state"><i class="fas fa-inbox"></i><p>No applications found.</p></div>
+</div>
+{% endif %}
+{% endblock %}

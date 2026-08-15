@@ -1,0 +1,44 @@
+{% extends "core/base.html" %}
+{% block page_title %}Manage Companies{% endblock %}
+{% block content %}
+<div class="section-header">
+  <div class="section-title">All Companies ({{ companies.count }})</div>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Company</th><th>Industry</th><th>Location</th><th>Jobs</th><th>Verified</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for company in companies %}
+        <tr>
+          <td>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;">{{ company.company_name }}</div>
+            <div style="font-size:12px;color:var(--text3);">{{ company.user.email }}</div>
+          </td>
+          <td style="font-size:13px;color:var(--text2);">{{ company.industry|default:"—" }}</td>
+          <td style="font-size:13px;color:var(--text2);">{{ company.location|default:"—" }}</td>
+          <td>{{ company.user.job_postings.count }}</td>
+          <td>
+            <span class="badge {% if company.is_verified %}badge-green{% else %}badge-orange{% endif %}">
+              {% if company.is_verified %}<i class="fas fa-check"></i> Verified{% else %}Pending{% endif %}
+            </span>
+          </td>
+          <td>
+            <form method="post" action="{% url 'verify_company' company.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline btn-xs">
+                {% if company.is_verified %}<i class="fas fa-times"></i> Unverify{% else %}<i class="fas fa-check"></i> Verify{% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted" style="padding:30px;">No companies yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

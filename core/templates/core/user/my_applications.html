@@ -1,0 +1,91 @@
+{% extends "core/base.html" %}
+{% block page_title %}My Applications{% endblock %}
+{% block content %}
+<div class="section-header">
+  <div>
+    <div class="section-title">My Applications</div>
+    <div class="section-subtitle">Track all your job applications and AI screening scores</div>
+  </div>
+  <a href="{% url 'job_list' %}" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Find More Jobs</a>
+</div>
+
+{% if applications %}
+<div style="display:flex;flex-direction:column;gap:14px;">
+  {% for app in applications %}
+  <div class="card">
+    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:start;">
+      <!-- AI Score -->
+      <div style="text-align:center;">
+        <div class="score-ring score-{% if app.ai_score >= 75 %}excellent{% elif app.ai_score >= 50 %}good{% elif app.ai_score >= 25 %}fair{% else %}poor{% endif %}" style="width:56px;height:56px;font-size:13px;">
+          {{ app.ai_score|floatformat:0 }}%
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;">AI Score</div>
+      </div>
+
+      <!-- Details -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <h3 style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;">{{ app.job.title }}</h3>
+          <span class="badge {% if app.status == 'shortlisted' %}badge-green{% elif app.status == 'rejected' %}badge-red{% elif app.status == 'interview' %}badge-blue{% elif app.status == 'offered' %}badge-purple{% else %}badge-gray{% endif %}">
+            {{ app.get_status_display }}
+          </span>
+        </div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:8px;">
+          <i class="fas fa-building" style="color:#3b82f6;margin-right:5px;"></i>
+          {{ app.job.company.company_profile.company_name|default:app.job.company.username }}
+          &nbsp;&bull;&nbsp;
+          <i class="fas fa-map-marker-alt" style="margin-right:4px;"></i>{{ app.job.location }}
+          &nbsp;&bull;&nbsp;
+          <i class="fas fa-calendar" style="margin-right:4px;"></i>Applied {{ app.applied_at|date:"M d, Y" }}
+        </div>
+
+        {% if app.ai_feedback %}
+        <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px;">
+          <i class="fas fa-robot" style="color:#3b82f6;margin-right:6px;"></i>
+          {{ app.ai_feedback|truncatechars:200 }}
+        </div>
+        {% endif %}
+
+        {% if app.skill_match_details %}
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+          {% if app.skill_match_details.matched_skills %}
+          <span style="font-size:12px;color:#10b981;">
+            <i class="fas fa-check"></i> {{ app.skill_match_details.matched_skills|length }} skills matched
+          </span>
+          {% endif %}
+          {% if app.skill_match_details.missing_skills %}
+          <span style="font-size:12px;color:#ef4444;">
+            <i class="fas fa-times"></i> {{ app.skill_match_details.missing_skills|length }} missing
+          </span>
+          {% endif %}
+          {% if app.skill_match_details.tfidf_similarity %}
+          <span style="font-size:12px;color:#6366f1;">
+            <i class="fas fa-chart-bar"></i> {{ app.skill_match_details.tfidf_similarity }}% content match
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <a href="{% url 'job_detail' app.job.pk %}" class="btn btn-outline btn-sm">View Job</a>
+        {% if app.resume %}
+        <a href="{{ app.resume.file.url }}" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Resume</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <i class="fas fa-file-alt"></i>
+    <h3 style="font-family:'Syne',sans-serif;">No Applications Yet</h3>
+    <p>Start applying to jobs that match your skills!</p>
+    <a href="{% url 'job_list' %}" class="btn btn-primary mt-3">Browse Jobs</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "core/base.html" %}
+{% load core_extras %}
+{% block page_title %}{{ job.title }}{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 340px;gap:24px;">
+  <!-- Main -->
+  <div>
+    <!-- Job Header -->
+    <div class="card" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+          <h1 style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:8px;">{{ job.title }}</h1>
+          <div style="font-size:16px;color:var(--text2);margin-bottom:14px;">
+            <i class="fas fa-building" style="color:#3b82f6;margin-right:6px;"></i>
+            <strong>{{ job.company.company_profile.company_name|default:job.company.username }}</strong>
+            {% if job.company.company_profile.is_verified %}
+            <i class="fas fa-check-circle" style="color:#10b981;font-size:13px;margin-left:5px;" title="Verified Company"></i>
+            {% endif %}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:16px;">
+            <span style="font-size:14px;color:var(--text2);"><i class="fas fa-map-marker-alt" style="color:#3b82f6;margin-right:5px;"></i>{{ job.location }}</span>
+            <span style="font-size:14px;color:var(--text2);"><i class="fas fa-briefcase" style="color:#6366f1;margin-right:5px;"></i>{{ job.get_job_type_display }}</span>
+            <span style="font-size:14px;color:var(--text2);"><i class="fas fa-layer-group" style="color:#f59e0b;margin-right:5px;"></i>{{ job.get_experience_level_display }}</span>
+            {% if job.deadline %}
+            <span style="font-size:14px;color:var(--text2);"><i class="fas fa-calendar" style="color:#ef4444;margin-right:5px;"></i>Deadline: {{ job.deadline|date:"M d, Y" }}</span>
+            {% endif %}
+          </div>
+        </div>
+        {% if job.salary_min or job.salary_max %}
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:var(--text3);">Salary Range</div>
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#10b981;">{{ job.get_salary_display }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title" style="margin-bottom:14px;">Job Description</div>
+      <div style="color:var(--text2);line-height:1.8;font-size:15px;white-space:pre-wrap;">{{ job.description }}</div>
+    </div>
+
+    <!-- Requirements -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title" style="margin-bottom:14px;">Requirements</div>
+      <div style="color:var(--text2);line-height:1.8;font-size:15px;white-space:pre-wrap;">{{ job.requirements }}</div>
+    </div>
+
+    {% if job.responsibilities %}
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title" style="margin-bottom:14px;">Responsibilities</div>
+      <div style="color:var(--text2);line-height:1.8;font-size:15px;white-space:pre-wrap;">{{ job.responsibilities }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Skills -->
+    {% if job.skills_text %}
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px;">Required Skills</div>
+      <div>
+        {% for skill in job.skills_text|split:"," %}
+        <span class="skill-tag" style="font-size:13px;padding:5px 14px;margin:3px;">{{ skill|title }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Sidebar -->
+  <div>
+    <!-- Apply Card -->
+    <div class="card" style="margin-bottom:16px;position:sticky;top:80px;">
+      {% if user.is_authenticated %}
+        {% if already_applied %}
+        <div style="text-align:center;padding:10px 0;">
+          <div style="font-size:40px;margin-bottom:8px;">✅</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;">Already Applied</div>
+          <div style="color:var(--text3);font-size:13px;margin-bottom:16px;">Your application is under review.</div>
+          <a href="{% url 'my_applications' %}" class="btn btn-outline w-100">View My Applications</a>
+        </div>
+        {% elif user_role == 'user' %}
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:14px;">Apply for this Position</div>
+        <form method="post" action="{% url 'apply_job' job.pk %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">Select Resume</label>
+            {{ apply_form.resume }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cover Letter (optional)</label>
+            {{ apply_form.cover_letter }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="justify-content:center;">
+            <i class="fas fa-paper-plane"></i> Submit Application
+          </button>
+        </form>
+        {% if not user.resumes.exists %}
+        <div style="margin-top:12px;padding:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;font-size:13px;color:#fbbf24;text-align:center;">
+          <i class="fas fa-exclamation-triangle"></i> Upload a resume first!
+          <a href="{% url 'resume_list' %}" style="color:inherit;text-decoration:underline;display:block;margin-top:4px;">Go to Resume Manager</a>
+        </div>
+        {% endif %}
+        {% else %}
+        <div style="text-align:center;color:var(--text3);font-size:14px;padding:10px 0;">
+          <i class="fas fa-lock" style="font-size:28px;margin-bottom:8px;display:block;"></i>
+          Login as a Job Seeker to apply.
+        </div>
+        {% endif %}
+      {% else %}
+      <div style="text-align:center;padding:10px 0;">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px;">Ready to Apply?</div>
+        <div style="color:var(--text3);font-size:13px;margin-bottom:14px;">Sign in or create a free account.</div>
+        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary w-100" style="justify-content:center;margin-bottom:8px;">
+          <i class="fas fa-sign-in-alt"></i> Sign In to Apply
+        </a>
+        <a href="{% url 'register' %}" class="btn btn-outline w-100" style="justify-content:center;">Create Account</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Job Summary -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px;">Job Summary</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;">
+          <i class="fas fa-calendar-plus" style="color:#3b82f6;width:18px;"></i>
+          <span style="color:var(--text3);">Posted:</span>
+          <span>{{ job.created_at|date:"M d, Y" }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;">
+          <i class="fas fa-eye" style="color:#6366f1;width:18px;"></i>
+          <span style="color:var(--text3);">Views:</span>
+          <span>{{ job.views_count }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;">
+          <i class="fas fa-users" style="color:#10b981;width:18px;"></i>
+          <span style="color:var(--text3);">Applications:</span>
+          <span>{{ job.applications.count }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;">
+          <i class="fas fa-circle" style="color:{% if job.status == 'active' %}#10b981{% else %}#ef4444{% endif %};width:18px;font-size:8px;"></i>
+          <span style="color:var(--text3);">Status:</span>
+          <span>{{ job.get_status_display }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if related_jobs %}
+<div style="margin-top:28px;">
+  <div class="section-header"><div class="section-title">Related Jobs</div></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+    {% for rjob in related_jobs %}
+    <a href="{% url 'job_detail' rjob.pk %}" style="display:block;">
+      <div class="job-card">
+        <div class="job-card-title">{{ rjob.title }}</div>
+        <div class="job-card-company">{{ rjob.company.company_profile.company_name|default:rjob.company.username }}</div>
+        <div class="job-card-meta">
+          <span class="job-meta-item"><i class="fas fa-map-marker-alt"></i> {{ rjob.location }}</span>
+          <span class="job-meta-item"><i class="fas fa-clock"></i> {{ rjob.get_job_type_display }}</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

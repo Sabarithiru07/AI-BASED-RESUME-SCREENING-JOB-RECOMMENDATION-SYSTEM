@@ -1,0 +1,36 @@
+
+John Doe
+Senior Software Engineer
+john.doe@email.com | +91 9876543210 | Chennai, India
+
+SUMMARY
+Experienced software engineer with 5 years of professional experience in building scalable
+web applications using Python, Django, React, and PostgreSQL. Passionate about clean code
+and AI/ML applications.
+
+EXPERIENCE
+Senior Software Engineer | TechCorp India | 2021 - Present
+- Developed REST APIs using Django and PostgreSQL serving 1M+ requests/day
+- Built React frontend components with TypeScript and Redux
+- Containerized applications with Docker and deployed to AWS ECS
+- Led a team of 4 junior developers
+
+Software Engineer | StartupXYZ | 2019 - 2021
+- Built full-stack features using Python, Django, and Vue.js
+- Designed database schemas for PostgreSQL
+- Integrated third-party APIs and payment gateways
+
+EDUCATION
+Bachelor of Technology in Computer Science
+Anna University, Chennai | 2015 - 2019
+
+SKILLS
+Programming: Python, JavaScript, TypeScript, SQL
+Frameworks: Django, Flask, React, Node.js
+Databases: PostgreSQL, MySQL, Redis, MongoDB
+DevOps: Docker, Kubernetes, AWS, CI/CD, Git
+Machine Learning: scikit-learn, pandas, numpy, NLP
+
+CERTIFICATIONS
+- AWS Certified Developer Associate
+- Python Professional Certificate

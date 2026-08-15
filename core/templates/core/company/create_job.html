@@ -1,0 +1,96 @@
+{% extends "core/base.html" %}
+{% block page_title %}{% if job %}Edit Job{% else %}Post New Job{% endif %}{% endblock %}
+{% block content %}
+<div style="max-width:800px;margin:0 auto;">
+  <div class="section-header">
+    <div>
+      <div class="section-title">{% if job %}Edit: {{ job.title }}{% else %}Post a New Job{% endif %}</div>
+      <div class="section-subtitle">Fill in the details — be specific to attract the right candidates</div>
+    </div>
+    <a href="{% url 'company_jobs' %}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title" style="margin-bottom:18px;">Basic Information</div>
+      <div class="form-group">
+        <label class="form-label">Job Title *</label>
+        {{ form.title }}
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Job Type *</label>
+          {{ form.job_type }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Experience Level *</label>
+          {{ form.experience_level }}
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Location *</label>
+          {{ form.location }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          {{ form.status }}
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Min Salary (₹)</label>
+          {{ form.salary_min }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Salary (₹)</label>
+          {{ form.salary_max }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Application Deadline</label>
+        {{ form.deadline }}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title" style="margin-bottom:18px;">Job Content</div>
+      <div class="form-group">
+        <label class="form-label">Job Description *</label>
+        {{ form.description }}
+        <div class="form-hint">Describe the role, team, and what success looks like.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Requirements *</label>
+        {{ form.requirements }}
+        <div class="form-hint">Education, experience, certifications required.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Responsibilities</label>
+        {{ form.responsibilities }}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title" style="margin-bottom:8px;">Skills for AI Matching</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:14px;">
+        These skills are used by our AI engine for resume screening and candidate ranking. Be specific!
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Required Skills (comma-separated)</label>
+        {{ form.skills_text }}
+        <div class="form-hint">e.g. python, django, react, postgresql, docker, aws</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <a href="{% url 'company_jobs' %}" class="btn btn-outline">Cancel</a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-{% if job %}save{% else %}paper-plane{% endif %}"></i>
+        {% if job %}Save Changes{% else %}Post Job{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

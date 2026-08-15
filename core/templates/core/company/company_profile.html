@@ -1,0 +1,58 @@
+{% extends "core/base.html" %}
+{% block page_title %}Company Profile{% endblock %}
+{% block content %}
+<div style="max-width:800px;margin:0 auto;">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:28px;">
+      <div style="width:80px;height:80px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;">🏢</div>
+      <div>
+        <h2 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;">{{ company.company_name|default:"Your Company" }}</h2>
+        <div style="color:var(--text3);font-size:14px;">{{ company.industry|default:"—" }}</div>
+        {% if company.is_verified %}<span class="badge badge-green" style="margin-top:6px;"><i class="fas fa-check-circle"></i> Verified</span>{% else %}<span class="badge badge-orange" style="margin-top:6px;">Pending Verification</span>{% endif %}
+      </div>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Company Name *</label>
+          {{ form.company_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Industry</label>
+          {{ form.industry }}
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Website</label>
+          {{ form.website }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          {{ form.location }}
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Company Size</label>
+          {{ form.company_size }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Founded Year</label>
+          {{ form.founded_year }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">About the Company</label>
+        {{ form.description }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Company Logo</label>
+        {{ form.logo }}
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Profile</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

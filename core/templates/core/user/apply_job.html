@@ -1,0 +1,57 @@
+{% extends "core/base.html" %}
+{% block page_title %}Apply for {{ job.title }}{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:0 auto;">
+  <div style="margin-bottom:20px;">
+    <a href="{% url 'job_detail' job.pk %}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back to Job</a>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div style="display:flex;align-items:flex-start;gap:16px;">
+      <div style="width:56px;height:56px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">💼</div>
+      <div>
+        <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;">{{ job.title }}</h2>
+        <div style="color:var(--text2);font-size:14px;">
+          <i class="fas fa-building" style="color:#3b82f6;margin-right:5px;"></i>{{ job.company.company_profile.company_name|default:job.company.username }}
+          &bull; <i class="fas fa-map-marker-alt" style="margin:0 4px;"></i>{{ job.location }}
+          &bull; {{ job.get_job_type_display }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:18px;"><i class="fas fa-paper-plane" style="color:#3b82f6;margin-right:8px;"></i>Submit Application</div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Select Resume *</label>
+        {{ form.resume }}
+        {% if not request.user.resumes.exists %}
+        <div style="margin-top:8px;padding:10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;font-size:13px;color:#fbbf24;">
+          <i class="fas fa-exclamation-triangle"></i> You haven't uploaded a resume yet.
+          <a href="{% url 'resume_list' %}" style="color:inherit;font-weight:700;margin-left:4px;">Upload one →</a>
+        </div>
+        {% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cover Letter <span style="color:var(--text3);font-weight:400;">(optional)</span></label>
+        {{ form.cover_letter }}
+        <div class="form-hint">Tell the employer why you're a great fit. Personalised letters improve your AI match score.</div>
+      </div>
+
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:20px;font-size:13px;color:var(--text2);">
+        <i class="fas fa-robot" style="color:#3b82f6;margin-right:6px;"></i>
+        <strong>AI Screening:</strong> Your resume will be instantly analysed against this job's requirements. You'll see your match score immediately after applying.
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <a href="{% url 'job_detail' job.pk %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;">
+          <i class="fas fa-paper-plane"></i> Submit Application
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

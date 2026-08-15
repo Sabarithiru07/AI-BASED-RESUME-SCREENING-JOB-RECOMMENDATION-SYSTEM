@@ -1,0 +1,140 @@
+{% extends "core/base.html" %}
+{% load core_extras %}
+{% block page_title %}Browse Jobs{% endblock %}
+{% block content %}
+<!-- Search Bar -->
+<div class="card" style="margin-bottom:20px;">
+  <form method="get" style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:12px;align-items:end;">
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">Search Jobs</label>
+      <input type="text" name="q" class="form-control" placeholder="Title, skill, keyword..." value="{{ q }}">
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">Location</label>
+      <input type="text" name="location" class="form-control" placeholder="City / Remote" value="{{ location }}">
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">Job Type</label>
+      <select name="job_type" class="form-control">
+        <option value="">All Types</option>
+        {% for val, label in job_types %}
+        <option value="{{ val }}" {% if val == job_type %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">Experience</label>
+      <select name="exp" class="form-control">
+        <option value="">All Levels</option>
+        {% for val, label in exp_levels %}
+        <option value="{{ val }}" {% if val == exp %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary" style="height:44px;"><i class="fas fa-search"></i> Search</button>
+  </form>
+</div>
+
+<div class="section-header">
+  <div>
+    <div class="section-title">{{ jobs.count }} Jobs Found</div>
+    {% if q or location or job_type or exp %}
+    <div class="section-subtitle">
+      Filters:
+      {% if q %}<span class="badge badge-blue" style="margin:0 3px;">{{ q }}</span>{% endif %}
+      {% if location %}<span class="badge badge-blue" style="margin:0 3px;">{{ location }}</span>{% endif %}
+      {% if job_type %}<span class="badge badge-blue" style="margin:0 3px;">{{ job_type }}</span>{% endif %}
+      {% if exp %}<span class="badge badge-blue" style="margin:0 3px;">{{ exp }}</span>{% endif %}
+      <a href="{% url 'job_list' %}" style="color:var(--danger);font-size:12px;margin-left:6px;">Clear all</a>
+    </div>
+    {% endif %}
+  </div>
+  {% if user.is_authenticated %}
+  <a href="{% url 'recommendations' %}" class="btn btn-primary btn-sm"><i class="fas fa-robot"></i> Get AI Matches</a>
+  {% endif %}
+</div>
+
+{% if jobs %}
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
+  {% for job in jobs %}
+  <div class="job-card">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+      <div style="flex:1;min-width:0;">
+        <div class="job-card-title">{{ job.title }}</div>
+        <div class="job-card-company">
+          <i class="fas fa-building" style="color:#3b82f6;margin-right:4px;"></i>
+          {{ job.company.company_profile.company_name|default:job.company.username }}
+          {% if job.company.company_profile.is_verified %}
+          <i class="fas fa-check-circle" style="color:#10b981;font-size:11px;margin-left:4px;" title="Verified"></i>
+          {% endif %}
+        </div>
+      </div>
+      {% if user.is_authenticated %}
+      <button class="icon-btn save-btn" data-job="{{ job.pk }}" title="Save job"
+        style="{% if job.pk in saved_job_ids %}color:#f59e0b;border-color:#f59e0b;{% endif %}">
+        <i class="fas fa-bookmark"></i>
+      </button>
+      {% endif %}
+    </div>
+
+    <div class="job-card-meta">
+      <span class="job-meta-item"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+      <span class="job-meta-item"><i class="fas fa-clock"></i> {{ job.get_job_type_display }}</span>
+      <span class="job-meta-item"><i class="fas fa-layer-group"></i> {{ job.get_experience_level_display }}</span>
+    </div>
+
+    {% if job.skills_text %}
+    <div style="margin-bottom:12px;">
+      {% for skill in job.skills_text|split:","|slice:":4" %}
+      <span class="skill-tag">{{ skill|title }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:14px;">
+      {{ job.description|truncatewords:18 }}
+    </div>
+
+    <div class="job-card-footer">
+      <div>
+        {% if job.salary_min or job.salary_max %}
+        <span style="font-size:13px;font-weight:600;color:#10b981;">{{ job.get_salary_display }}</span>
+        {% else %}
+        <span style="font-size:12px;color:var(--text3);">Salary negotiable</span>
+        {% endif %}
+      </div>
+      <a href="{% url 'job_detail' job.pk %}" class="btn btn-primary btn-sm">View Job</a>
+    </div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);">
+      Posted {{ job.created_at|timesince }} ago &bull; {{ job.views_count }} views
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <i class="fas fa-search"></i>
+  <h3 style="font-family:'Syne',sans-serif;margin-bottom:6px;">No Jobs Found</h3>
+  <p>Try adjusting your search filters.</p>
+  <a href="{% url 'job_list' %}" class="btn btn-outline mt-3">Clear Filters</a>
+</div>
+{% endif %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.save-btn').forEach(btn => {
+  btn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const jobId = btn.dataset.job;
+    const res = await fetch(`/jobs/${jobId}/save/`, {
+      method: 'POST',
+      headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    });
+    const data = await res.json();
+    btn.style.color = data.saved ? '#f59e0b' : '';
+    btn.style.borderColor = data.saved ? '#f59e0b' : '';
+  });
+});
+</script>
+{% endblock %}
+{% endblock %}
